@@ -1,0 +1,39 @@
+xp3は吉里吉里のリリーサーから出力されるゲームアーカイブファイル。
+
+2010年時点の吉里吉里のリリーサーのソースコード(リンク切れ)
+https://sv.kikyou.info/trac/kirikiri/browser/kirikiri2/branches/2.28stable/kirikiri2/src/tools/win32/krdevui/RelSettingsUnit.cpp
+https://sv.kikyou.info/trac/kirikiri/browser/kirikiri2/branches/2.30stable/kirikiri2/src/tools/win32/krdevui/RelSettingsUnit.cpp
+
+吉里吉里Zにおけるリリーサー
+https://github.com/krkrsdl2/krkrrel-ng
+
+GUIからCLIツールに変更。
+0x20 - 0x27にファイル管理部のインデックスの場所が格納されている。
+zlib圧縮されている場合の先頭２バイトは0x78DAの場合が多い。
+ファイル名はUTF16でエンコードされている。
+oggファイルの場合は特殊処理あり。
+
+$ git clone --recursive https://github.com/krkrsdl2/krkrrel-ng
+Cloning into 'krkrrel-ng'...
+remote: Enumerating objects: 174, done.
+remote: Counting objects: 100% (174/174), done.
+remote: Compressing objects: 100% (137/137), done.
+remote: Total 174 (delta 33), reused 171 (delta 30), pack-reused 0
+Receiving objects: 100% (174/174), 456.64 KiB | 9.32 MiB/s, done.
+Resolving deltas: 100% (33/33), done.
+Submodule 'external/meson_toolchains' (https://github.com/krkrsdl2/meson_toolchains) registered for path 'external/meson_toolchains'
+Submodule 'external/zlib' (https://github.com/krkrsdl2/zlib) registered for path 'external/zlib'
+Cloning into 'C:/Users/MatsumotoMinoru/gitRepo/krkrrel-ng/external/meson_toolchains'...
+remote: Enumerating objects: 10, done.
+remote: Counting objects: 100% (10/10), done.
+remote: Compressing objects: 100% (8/8), done.
+remote: Total 10 (delta 2), reused 10 (delta 2), pack-reused 0
+Receiving objects: 100% (10/10), done.
+Resolving deltas: 100% (2/2), done.
+Cloning into 'C:/Users/MatsumotoMinoru/gitRepo/krkrrel-ng/external/zlib'...
+remote: Enumerating objects: 146, done.
+remote: Total 146 (delta 0), reused 0 (delta 0), pack-reused 146
+Receiving objects: 100% (146/146), 307.11 KiB | 13.35 MiB/s, done.
+Resolving deltas: 100% (45/45), done.
+Submodule path 'external/meson_toolchains': checked out '5d6b2b9aace99a1b1bfe158dd5f0228839e99973'
+Submodule path 'external/zlib': checked out '5a077bdda3b73caffc4566a74ab7a5b50747b5d0'

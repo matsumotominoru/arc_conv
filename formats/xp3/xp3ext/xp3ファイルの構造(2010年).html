@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0053)http://keepcreating.g2.xrea.com/DojinDOC/xp3file.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF_8">
+
+<meta http-equiv="content-style-type" content="text/css">
+<meta http-equiv="content-script-type" content="text/javascript">
+<title>xp3ファイルの構造(2010年)</title>
+</head>
+<body bgcolor="lightblue">
+
+<div align="right">
+2010/03/20<br>
+KAICHO: s_naray[at]yahoo[dot]co[dot]jp<br>
+※SPAM防止のため捻ってある
+</div>
+
+<h1 align="center">xp3ファイルの構造(2010年)</h1>
+
+<p>
+</p><h2>■はじめに</h2>
+
+探してみたのだがどこにも転がってなかったので、吉里吉里の吐き出す xp3 ファイルの
+ファイル構造を以下に書き下す。2.30 になってからちょっとヘッダ構造が変わって
+しまったために、今までのツール(xp3dec.exeとか)だと展開できなくなって
+しまっている。のだが、大きく変わったワケではないので、まぁそのアレだ、
+ちょいちょい、とすれば対応できる。
+ちなみに、ソースコードはここいらへんを見ると良い。
+<p>
+</p><ul>
+  <li><a href="https://sv.kikyou.info/trac/kirikiri/browser/kirikiri2/branches/2.28stable/kirikiri2/src/tools/win32/krdevui/RelSettingsUnit.cpp">吉里吉里2.28のリリーサのソースコード</a>
+  </li><li><a href="https://sv.kikyou.info/trac/kirikiri/browser/kirikiri2/branches/2.30stable/kirikiri2/src/tools/win32/krdevui/RelSettingsUnit.cpp">吉里吉里2.30のリリーサのソースコード</a>
+</li></ul>
+<p>
+なんでこんなこと調べたのかというと、自分が過去作ったゲームのバックアップ
+データを飛ばしてしまい、どうしてもxp3ファイルから元データを引っ張り出す
+必要に迫られたため。吉里吉里/KAGにデフォルトでそういうツールがついてない
+理由は理解しているつもり。
+
+</p><p>
+</p><h3>●ファイル構造概要</h3>
+
+吉里吉里のデータファイル xp3 は、大きく以下の三つのセクションに分けられる。
+<ol>
+  <li>XP3ヘッダ部
+  </li><li>データ部
+  </li><li>ファイル管理部
+</li></ol>
+それぞれ、非常にシンプルな構造になっているため、ちょっとソースコード見れば
+よく分かると思う。のであるが、何度もソースコード見直すの面倒だから、
+自分のためにココに書いておく所存ナリ。
+<p>
+ちなみに、「サイズ」などの数値データは、
+<b>全てリトルエンディアンで格納されている</b>ことに注意。
+
+
+</p><p>
+</p><h3>●XP3ヘッダ部</h3>
+
+XP3ヘッダ部は、吉里吉里2.28までと、吉里吉里2.30とで異なる。具体的には、
+間に「クッション」なんてものが挿入されている。なんでこう変えてしまったのかは
+不明。とりあえず、ファイル先頭から12byte目からが 17 00 00 00 00 00 00 00
+かどうか、くらいで区別できるが、そんな安直なのでイイんだろうか。
+ヤバそうなら教えてください。
+
+<p>
+</p><center>
+<table border="1">
+<tbody><tr>
+  <th colspan="5">吉里吉里2.28まで</th>
+  <th colspan="5">吉里吉里2.30から</th>
+</tr>
+<tr>
+  <th>セクション名</th>
+  <th>データ名</th><th>byte</th><th>データ例(16進数)</th><th>備考</th>
+  <th>セクション名</th>
+  <th>データ名</th><th>byte</th><th>データ例(16進数)</th><th>備考</th>
+</tr>
+<tr>
+  <td rowspan="10">XP3ヘッダ</td>
+  <td>XP3ヘッダ1</td><td align="right">8</td><td>58 50 33 0d 0a 20 0a 1a</td><td>固定値</td>
+  <td colspan="5" align="center">←同じ</td>
+</tr>
+<tr>
+  <td>XP3ヘッダ2</td><td align="right">3</td><td>8b 67 01</td><td>固定値</td>
+  <td colspan="5" align="center">←同じ</td>
+</tr>
+<tr>
+  <td colspan="4" align="center">なし</td>
+  <td rowspan="4">クッション</td>
+  <td>クッションインデックス</td><td align="right">8</td><td>17 00 00 00 00 00 00 00</td><td>固定値</td>
+</tr>
+<tr>
+  <td colspan="4" align="center">なし</td>
+  <td>ヘッダマイナーバージョン</td><td align="right">4</td><td>01 00 00 00 </td><td>今は固定値</td>
+</tr>
+<tr>
+  <td colspan="4" align="center">なし</td>
+  <td>クッションヘッダ</td><td align="right">1</td><td>80</td><td>固定値</td>
+</tr>
+<tr>
+  <td colspan="4" align="center">なし</td>
+  <td>インデックスサイズ</td><td align="right">8</td><td>00 00 00 00 00 00 00 00</td><td>今は0固定</td>
+</tr>
+
+  <tr><td>ファイル管理部のインデックス</td><td align="right">8</td><td align="center">-</td><td>後述のファイル管理部が存在するXP3ファイル上の位置</td>
+  <td colspan="5" align="center">←同じ</td>
+</tr>
+</tbody></table>
+</center>
+
+<p>
+</p><h3>●データ部</h3>
+データ部は本当にデータの羅列しか入っていない。
+どこからどこまで格納されているかは、
+後述のファイル管理部に格納されているので、ここでは説明を割愛する。
+
+<p>
+</p><h3>●ファイル管理部</h3>
+ファイル管理部は、吉里吉里2.28と2.30とで共通。
+ファイル情報の配列となっている。ただし、一管理部に対し、
+一つ28byteのセグメントが不定数存在するため、
+配列の要素サイズは一定ではないことに
+注意。また、一部が圧縮されている場合があることにも注意。
+圧縮にはzlibが使われており、単純にzlibのuncompress()関数で展開できる。
+<p>
+ファイル管理部の並びを以下に示す。
+</p><ol>
+  <li>ファイル管理部ヘッダ(１つ)
+  </li><li>ファイル管理部 xN(この中それぞれにセグメント管理部が複数存在する)
+</li></ol>
+
+<p>
+</p><center>
+<table border="1">
+<tbody><tr><th colspan="4">ファイル管理部ヘッダ</th></tr>
+<tr>
+  <th>データ名</th><th>byte</th><th>データ例(16進数)</th><th>備考</th>
+</tr>
+  <tr><td>圧縮フラグ</td><td align="right">1</td><td align="center">-</td><td>0 = 管理部非圧縮<br>1 = 管理部圧縮</td>
+</tr>
+<tr>
+  <td>圧縮管理部サイズ</td><td align="right">8</td><td align="center">-</td><td>管理部非圧縮の場合は存在しない</td>
+</tr>
+<tr>
+  <td>管理部サイズ</td><td align="right">8</td><td align="center">-</td><td>圧縮されていた場合は、展開後のサイズ</td>
+</tr>
+<tr><td colspan="4" align="center">ここにファイル管理部の配列が入る(圧縮時は管理部配列をzlib圧縮したデータ)</td></tr>
+</tbody></table>
+</center>
+
+<p>
+</p><center>
+<table border="1">
+<tbody><tr><th colspan="5">ファイル管理部(一つ)</th></tr>
+<tr>
+  <th>セクション名</th>
+  <th>データ名</th><th>byte</th><th>データ例(16進数)</th><th>備考</th>
+</tr>
+<tr>
+  <td rowspan="2">File</td>
+  <td>管理部ヘッダ</td><td align="right">4</td><td>文字列"File"</td><td>固定値</td>
+</tr>
+<tr>
+  <td>この管理部のサイズ</td><td align="right">8</td><td align="center">-</td><td>これ以降のデータサイズであり、"File"と「この管理部のサイズ」自身は含まない</td>
+</tr>
+<tr>
+  <td rowspan="7">Info</td>
+  <td>infoヘッダ</td><td align="right">4</td><td>文字列"info"</td><td>固定値</td>
+</tr>
+<tr>
+  <td>infoサイズ</td><td align="right">8</td><td align="center">-</td><td>4+8+8+2+ファイル名長*2、すなわち、これ以降次のSegmentまでのバイト数</td>
+</tr>
+<tr>
+  <td>フラグ</td><td align="right">4</td><td align="center">-</td><td>0 = プロテクトなし<br>1&lt;&lt;31 = プロテクトあり<br>
+「プロテクト」とは「このデータ展開しないで欲しいなぁ」というフラグであり、
+実際にデータに何か細工がしてあるわけではない。紳士協定というヤツ。
+<a href="http://devdoc.kikyou.info/tvp/docs/kr2doc/contents/Releaser.html">
+ここいらへんに書いてある</a>。
+</td>
+</tr>
+<tr>
+  <td>展開後のファイルサイズ</td><td align="right">8</td><td align="center">-</td><td align="center">-</td>
+</tr>
+<tr>
+  <td>格納されているファイルサイズ</td><td align="right">8</td><td align="center">-</td><td align="center">-</td>
+</tr>
+<tr>
+  <td>ファイル名長</td><td align="right">2</td><td align="center">-</td><td>wcharなので、/2されていることに注意(0x0bなら下のファイル名は22byte)</td>
+</tr>
+<tr>
+  <td>ファイル名</td><td align="right">ファイル名長に依存</td><td>"s.y.s.t.e.m./.C.o.n.f.i.g...t.j.s."</td><td>WStringになっている(末尾の'\0'は存在しない)。また、相対パスになっており、ディレクトリ名を含む。ディレクトリ区切り記号は'\'ではなく'/'であることに注意</td>
+</tr>
+<tr>
+  <td rowspan="3">Segment</td>
+  <td>segmentヘッダ</td><td align="right">4</td><td>文字列"segm"</td><td>固定値</td>
+</tr>
+<tr>
+  <td>segmentサイズ</td><td align="right">8</td><td align="center">-</td><td>セグメント数*28(１セグメント管理部=28byteのため)</td>
+</tr>
+<tr>
+  <td colspan="4" align="center">ここにセグメント管理部がセグメント数繰り返し入る</td>
+</tr>
+<tr>
+  <td rowspan="3">Adler-32</td>
+  <td>Adler ID</td><td align="right">4</td><td>文字列"adlr"</td><td>固定値</td>
+</tr>
+<tr>
+  <td>Adler長</td><td align="right">8</td><td>04 00 00 00 00 00 00 00</td><td>現在はAdler長は4byteと決まっているので 4 固定</td>
+</tr>
+<tr>
+  <td>Adler-32</td><td align="right">4</td><td align="center">-</td><td>Adler-32 チェックサム(<a href="http://ja.wikipedia.org/wiki/Adler-32">Wikipedia参照</a>)</td>
+</tr>
+</tbody></table>
+</center>
+<p>
+「セグメント」が複数あるということは、一つのファイルを複数に分割して
+格納していることを意味する。とはいえ、実際には複数に分割されることは
+少ないみたい。セグメントごとに圧縮・非圧縮を指定でき、圧縮されている場合は、
+データは例によってzlibで圧縮されている。
+</p><p>
+</p><center>
+<table border="1">
+<tbody><tr><th colspan="4">セグメント管理部(一つ) 28byte</th></tr>
+<tr>
+  <th>データ名</th><th>byte</th><th>データ例(16進数)</th><th>備考</th>
+</tr>
+<tr>
+  <td>フラグ</td><td align="right">4</td><td align="center">-</td><td>0 = 非圧縮<br>1 = 圧縮</td>
+</tr>
+<tr>
+  <td>オフセット</td><td align="right">8</td><td align="center">-</td><td>XP3ファイル中でのデータ開始位置</td>
+</tr>
+<tr>
+  <td>オリジナルサイズ</td><td align="right">8</td><td align="center">-</td><td>データの元サイズ</td>
+</tr>
+<tr>
+  <td>格納サイズ</td><td align="right">8</td><td align="center">-</td><td>XP3ファイルに格納されているデータのサイズ。圧縮されている場合は元サイズより小さく、圧縮されていない場合は上の「オリジナルサイズ」と同じ</td>
+</tr>
+
+
+</tbody></table>
+</center>
+<p>
+Adler-32は、簡単なチェックサム値。md5sumのようなもの。まぁ…シカトしてよし。
+実際、一部のデータには存在していなかった。
+最近になって後から追加されたようだ。すなわち、今後も、
+管理部のセクション(チャンクとも呼ぶ)は拡張され、追加されていく可能性がある。
+ファイル管理部の各セクション先頭は
+</p><ol>
+  <li>4byte：ヘッダ文字列
+  </li><li>8byte：このセクションのサイズ(先頭12byteを含まない)
+  </li><li>セクション内データ
+</li></ol>
+と並んでいるので、
+「1.と2.を読み込んで、知らないセクションだったらスキップする」、
+という処理をした方が良いだろう。それで今後うまく動くかどうかの保証は
+全くないけれど、少なくとも拡張はしやすくなる。
+
+<p>
+</p><h2>■そんなワケで</h2>
+<a href="http://keepcreating.g2.xrea.com/krkrplugins/xp3ext/xp3ext.zip">作ってみた</a>。ただしcygwin
+専用という、一体誰が使うんだというそんな。
+我輩、Windows上のCの開発環境持ってないんでスよ。こういう表を書いて、
+ツールのソースコード公開しておいたら、誰かもっとイイの作ってくんないかなー、
+と期待したりしないでもない。
+
+
+</body></html>
